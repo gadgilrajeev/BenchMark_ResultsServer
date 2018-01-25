@@ -1,0 +1,33 @@
+---
+- hosts: php
+  sudo: yes
+
+  tasks:
+
+  - name: install packages
+    apt: name={{ item }} update_cache=yes state=latest
+    with_items:
+      - git
+      - nginx
+      - php
+      - php-fpm
+      - python
+      - python3
+
+  - name: create /opt/logs directory
+    file: dest=/opt/logs/ state=directory mode=0777
+
+  - name: create snippets directory
+    file: dest=/etc/nginx/snippets state=directory
+
+
+  - name: Config Files
+    copy: src=../nginx_files/mime.types dest=/etc/nginx/mime.types
+    copy: src=../nginx_files/nginx.conf dest=/etc/nginx/nginx.conf
+
+  - name: start php7.1-fpm
+    command: /etc/init.d/php7.1-fpm start
+
+  - name: Restart Nginx
+    command: /usr/sbin/nginx -c /etc/nginx/nginx.conf
+
